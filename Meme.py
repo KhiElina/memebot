@@ -45,8 +45,6 @@ def send_request(message):
     return (answer) # Возвращаем ответ от нейронки (в моем случае шутку)
     chat_history[0]["content"] += answer + " "
 
-# Функция создания картинки, полностью взята с Hugging face (Если спросит работает на "Stable diffusion")
-# Откуда код:         https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0
 def send_photo1(message): # Функция принимает значение текстового формата
     base = DiffusionPipeline.from_pretrained(
         "stabilityai/stable-diffusion-xl-base-1.0", torch_dtype=torch.float16, variant="fp16", use_safetensors=True)
@@ -89,22 +87,15 @@ def start(message):
 # Если сообщение текстовое то,(иначе выдаст обычную ошибку)
 @bot.message_handler(content_types=['text'])  # Проверка формата сообщения
 def get_text_messages(message):  # Берем полученное сообщение в боте
-    # УДАЛИ ЭТО КАК ПРОЧТЕШЬ)
-    # Так как GPT4 американская ИИ зачастую русские запросы она плохо воспринимает
-    # Для этого обыграем систему посредством гугл-переводчика
-    # Конечно за счет такого хода изредка теряется шутка(тк нейронка изначально кидает шутку на английском)
-    # Схема проста           Наше сообщение переводим в английский и отдаем это боту
-    # Он это воспринимает как надо и дает ответ на английском
-    # Мы же берем ответ и переводим это на русский, затем отправляем пользователю
     input_1 = GoogleTranslator(source='auto', target='en').translate(
         message.text)  # Наше сообщение переводим в английский
     input_to_ai = "Сome up with a joke about " + input_1  # Помимо нашего сообщения, просим его пошутить на "Наше сообщение"
     output = GoogleTranslator(source='auto', target='ru').translate(
         send_request(input_to_ai))  # Полученный ответ переводим на русский
 
-    # Отправляем сообщение (супер мега)(шутка от бота)
+    # Отправляем сообщение
     bot.send_message(message.chat.id, output)
-    # Отправляем (супер мега) картинку созданной по нашей шутке
+    # Отправляем картинку созданной по нашей шутке
     bot.send_photo(message.chat.id, send_photo1(output))  # Запрашиваем картинку по нашей фотке
 
 
